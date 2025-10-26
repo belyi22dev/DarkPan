@@ -1,1 +1,1208 @@
 
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Склад автомобильных стекол</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --bs-body-bg: #121212;
+            --bs-body-color: #e9ecef;
+        }
+        body {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background-color: #1e1e1e;
+            min-height: 100vh;
+            transition: all 0.3s;
+        }
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            margin: 0.125rem 0.5rem;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            background-color: rgba(13, 110, 253, 0.2);
+            color: #0d6efd;
+        }
+        .main-content {
+            transition: all 0.3s;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border: 1px solid #343a40;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.25);
+        }
+        .table {
+            color: #e9ecef;
+        }
+        .table-dark {
+            --bs-table-bg: #1e1e1e;
+            --bs-table-striped-bg: #2c2c2c;
+            --bs-table-hover-bg: #343a40;
+        }
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 500;
+        }
+        .form-control, .form-select {
+            background-color: #2c2c2c;
+            border: 1px solid #495057;
+            color: #e9ecef;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #2c2c2c;
+            border-color: #0d6efd;
+            color: #e9ecef;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        .modal-content {
+            background-color: #1e1e1e;
+            border: 1px solid #343a40;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            max-width: 350px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .login-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
+        }
+        .login-card {
+            background-color: #1e1e1e;
+            border-radius: 1rem;
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+        }
+        .pin-input {
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            font-weight: bold;
+        }
+        .stats-card {
+            transition: transform 0.3s;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .search-container {
+            position: relative;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .calculator-display {
+            background-color: #2c2c2c;
+            border: 1px solid #495057;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1.25rem;
+            min-height: 60px;
+            margin-bottom: 1rem;
+        }
+        .calculator-history {
+            font-size: 0.9rem;
+            color: #adb5bd;
+            min-height: 20px;
+        }
+        .calculator-total {
+            font-weight: bold;
+            text-align: right;
+            font-size: 1.5rem;
+        }
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                min-height: auto;
+                width: 100%;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="login-page" class="page active">
+        <div class="login-container d-flex align-items-center justify-content-center">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="login-card p-4">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-warehouse fa-3x text-primary mb-3"></i>
+                                <h2 class="fw-bold">Склад автомобильных стекол</h2>
+                                <p class="text-muted">Введите PIN-код для входа</p>
+                            </div>
+                            <form id="login-form">
+                                <div class="mb-3">
+                                    <input type="password" id="pin-input" class="form-control pin-input" maxlength="4" placeholder="****" autocomplete="off" />
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary btn-lg">Войти</button>
+                                </div>
+                            </form>
+                            <div id="pin-error" class="alert alert-danger mt-3 d-none" role="alert">Неверный PIN-код. Попробуйте снова.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="page">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"><i class="fas fa-warehouse me-2"></i>Склад автостекол</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" id="fullscreen-btn"><i class="fas fa-expand me-1"></i><span>Полный экран</span></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"><i class="fas fa-user-circle me-1"></i> Администратор</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" id="export-data"><i class="fas fa-download me-2"></i> Экспорт данных</a></li>
+                                <li><a class="dropdown-item" href="#" id="import-data"><i class="fas fa-upload me-2"></i> Импорт данных</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" href="#" id="logout-btn"><i class="fas fa-sign-out-alt me-2"></i> Выйти</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-2 col-md-3 sidebar py-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link active" href="#" data-page="dashboard"><i class="fas fa-tachometer-alt me-2"></i> Мониторинг</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-page="warehouse"><i class="fas fa-boxes me-2"></i> Склад</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-page="nomenclature"><i class="fas fa-list-alt me-2"></i> Номенклатура</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-10 col-md-9 main-content py-3">
+                    <div id="dashboard-page" class="page active">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Мониторинг склада</h1>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-xl-4 col-md-6 mb-4">
+                                <div class="card stats-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p class="card-text text-muted">Всего товаров</p>
+                                                <h4 class="card-title mb-0" id="total-products">0</h4>
+                                            </div>
+                                            <div class="align-self-center"><i class="fas fa-boxes fa-2x text-primary"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-6 mb-4">
+                                <div class="card stats-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p class="card-text text-muted">Товаров на складе</p>
+                                                <h4 class="card-title mb-0" id="in-stock">0</h4>
+                                            </div>
+                                            <div class="align-self-center"><i class="fas fa-warehouse fa-2x text-success"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 col-md-6 mb-4">
+                                <div class="card stats-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <p class="card-text text-muted">Расхождения</p>
+                                                <h4 class="card-title mb-0" id="discrepancies">0</h4>
+                                            </div>
+                                            <div class="align-self-center"><i class="fas fa-exclamation-triangle fa-2x text-warning"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header"><h5 class="card-title mb-0">Последние операции</h5></div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Товар</th>
+                                                        <th>Тип операции</th>
+                                                        <th>Количество</th>
+                                                        <th>Дата</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="recent-operations"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header"><h5 class="card-title mb-0">Статистика по товарам</h5></div>
+                                    <div class="card-body">
+                                        <div id="products-stats"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="warehouse-page" class="page">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Учет товаров на складе</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <button class="btn btn-sm btn-outline-primary me-2" id="start-counting"><i class="fas fa-clipboard-check me-1"></i> Начать подсчет</button>
+                                <button class="btn btn-sm btn-outline-success" id="save-counting"><i class="fas fa-save me-1"></i> Сохранить подсчет</button>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <div class="search-container">
+                                    <input type="text" class="form-control" id="search-products" placeholder="Поиск товара (от 3-х символов)..." />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-dark" id="products-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Наименование</th>
+                                                <th>Количество</th>
+                                                <th>По факту</th>
+                                                <th>Разница</th>
+                                                <th>Операции</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="products-table-body"></tbody>
+                                    </table>
+                                </div>
+                                <div id="products-table-body-pagination" class="pagination-container"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="nomenclature-page" class="page">
+                        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Номенклатура</h1>
+                            <div class="btn-toolbar mb-2 mb-md-0">
+                                <div class="btn-group me-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addProductModal"><i class="fas fa-plus me-1"></i> Добавить товар</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="import-products"><i class="fas fa-file-import me-1"></i> Импорт</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header"><h5 class="card-title mb-0">Товары</h5></div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover" id="nomenclature-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Наименование</th>
+                                                        <th>Количество</th>
+                                                        <th>Операции</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="nomenclature-table-body"></tbody>
+                                            </table>
+                                        </div>
+                                        <div id="nomenclature-table-body-pagination" class="pagination-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changeQuantityModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Изменение количества</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="change-quantity-form">
+                        <input type="hidden" id="product-id" />
+                        <div class="mb-3">
+                            <label for="product-name" class="form-label">Товар</label>
+                            <input type="text" class="form-control" id="product-name" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label for="current-quantity" class="form-label">Текущее количество</label>
+                            <input type="number" class="form-control" id="current-quantity" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-quantity" class="form-label">Новое количество</label>
+                            <input type="number" class="form-control" id="new-quantity" min="0" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="save-quantity">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="countFactModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подсчет по факту</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="count-fact-form">
+                        <input type="hidden" id="count-product-id" />
+                        <div class="mb-3">
+                            <label for="count-product-name" class="form-label">Товар</label>
+                            <input type="text" class="form-control" id="count-product-name" readonly />
+                        </div>
+                        <div class="mb-3">
+                            <label for="count-current-quantity" class="form-label">Количество по учету</label>
+                            <input type="number" class="form-control" id="count-current-quantity" readonly />
+                        </div>
+                        <div class="calculator-display">
+                            <div class="calculator-history" id="calculator-history"></div>
+                            <div class="calculator-total" id="calculator-total">0</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="calculator-input" class="form-label">Введите число для добавления</label>
+                            <input type="number" class="form-control" id="calculator-input" min="0" value="0" />
+                        </div>
+                        <div class="calculator-buttons mb-3">
+                            <button type="button" class="btn btn-primary" id="calculator-add">Добавить</button>
+                            <button type="button" class="btn btn-warning" id="calculator-undo">Отменить</button>
+                            <button type="button" class="btn btn-secondary" id="calculator-reset">Сбросить</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="save-fact">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="pinConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Подтверждение действия</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Для начала подсчета введите PIN-код:</p>
+                    <div class="mb-3">
+                        <input type="password" id="pin-confirm-input" class="form-control pin-input" maxlength="4" placeholder="****" autocomplete="off" />
+                    </div>
+                    <div id="pin-confirm-error" class="alert alert-danger mt-3 d-none" role="alert">Неверный PIN-код. Попробуйте снова.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="confirm-pin">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавление товара</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-product-form">
+                        <div class="mb-3">
+                            <label for="new-product-name" class="form-label">Наименование</label>
+                            <input type="text" class="form-control" id="new-product-name" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-product-quantity" class="form-label">Количество</label>
+                            <input type="number" class="form-control" id="new-product-quantity" min="0" value="0" required />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="button" class="btn btn-primary" id="save-product">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-area"></div>
+    <input type="file" id="import-file" accept=".json" style="display: none;" />
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const CONFIG = {
+            login_pin: '1234',
+            counting_pin: '0000'
+        };
+
+        let appData = {
+            products: [],
+            operations: [],
+            lastProductId: 0,
+            lastOperationId: 0
+        };
+
+        let currentPageWarehouse = 1;
+        let currentPageNomenclature = 1;
+        const rowsPerPage = 10;
+        let searchQuery = '';
+
+        function createElement(tag, content, className = '') {
+            const element = document.createElement(tag);
+            if (className) element.className = className;
+            element.textContent = content;
+            return element;
+        }
+
+        function generateProductId() {
+            appData.lastProductId += 1;
+            return appData.lastProductId;
+        }
+
+        function generateOperationId() {
+            appData.lastOperationId += 1;
+            return appData.lastOperationId;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                loadDataFromStorage();
+                setupEventListeners();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Ошибка инициализации приложения:', error);
+                showNotification('Ошибка загрузки приложения', 'danger');
+            }
+        });
+
+        function loadDataFromStorage() {
+            try {
+                const savedData = localStorage.getItem('warehouse_data');
+                if (!savedData) {
+                    appData.products = [
+                        { id: 1, name: 'Лобовое стекло Lada Granta', quantity: 15, fact: 15 },
+                        { id: 2, name: 'Заднее стекло Lada Vesta', quantity: 10, fact: 10 },
+                        { id: 3, name: 'Боковое стекло Kia Rio', quantity: 25, fact: 23 },
+                        { id: 4, name: 'Лобовое стекло Hyundai Solaris', quantity: 12, fact: 12 },
+                        { id: 5, name: 'Заднее стекло Volkswagen Polo', quantity: 8, fact: 8 },
+                        { id: 6, name: 'Боковое стекло Renault Logan', quantity: 18, fact: 20 }
+                    ];
+                    appData.operations = [
+                        { id: 1, productId: 3, type: 'Подсчет', quantity: 23, date: '2023-05-15 14:30' },
+                        { id: 2, productId: 6, type: 'Изменение', quantity: 18, date: '2023-05-14 11:20' },
+                        { id: 3, productId: 1, type: 'Добавление', quantity: 15, date: '2023-05-13 09:15' }
+                    ];
+                    appData.lastProductId = 6;
+                    appData.lastOperationId = 3;
+                    saveDataToStorage();
+                } else {
+                    appData = JSON.parse(savedData);
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showNotification('Ошибка загрузки данных', 'danger');
+                appData = {
+                    products: [],
+                    operations: [],
+                    lastProductId: 0,
+                    lastOperationId: 0
+                };
+            }
+        }
+
+        function saveDataToStorage() {
+            try {
+                localStorage.setItem('warehouse_data', JSON.stringify(appData));
+            } catch (error) {
+                console.error('Ошибка сохранения данных:', error);
+                showNotification('Ошибка сохранения данных', 'danger');
+            }
+        }
+
+        function exportData() {
+            try {
+                const dataStr = JSON.stringify(appData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = `warehouse_data_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                showNotification('Данные успешно экспортированы', 'success');
+            } catch (error) {
+                console.error('Ошибка экспорта данных:', error);
+                showNotification('Ошибка экспорта данных', 'danger');
+            }
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (importedData.products && importedData.operations && importedData.lastProductId !== undefined) {
+                        appData = importedData;
+                        saveDataToStorage();
+                        loadDashboardData();
+                        loadWarehouseData();
+                        loadNomenclatureData();
+                        showNotification('Данные успешно импортированы', 'success');
+                    } else {
+                        showNotification('Ошибка: неверный формат файла', 'danger');
+                    }
+                } catch (error) {
+                    console.error('Ошибка импорта данных:', error);
+                    showNotification('Ошибка при чтении файла', 'danger');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function toggleFullScreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.error('Ошибка при входе в полноэкранный режим:', err);
+                        showNotification('Ошибка входа в полноэкранный режим', 'danger');
+                    });
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка переключения полноэкранного режима:', error);
+                showNotification('Ошибка переключения режима просмотра', 'danger');
+            }
+        }
+
+        function setupEventListeners() {
+            try {
+                document.getElementById('login-form').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const pinInput = document.getElementById('pin-input');
+                    if (pinInput.value === CONFIG.login_pin) {
+                        document.getElementById('login-page').classList.remove('active');
+                        document.getElementById('app').classList.add('active');
+                        showNotification('Успешный вход в систему', 'success');
+                        showNotification('Не забывайте регулярно делать экспорт данных!', 'warning');
+                    } else {
+                        document.getElementById('pin-error').classList.remove('d-none');
+                        pinInput.value = '';
+                    }
+                });
+
+                document.getElementById('logout-btn').addEventListener('click', function() {
+                    document.getElementById('app').classList.remove('active');
+                    document.getElementById('login-page').classList.add('active');
+                    document.getElementById('pin-input').value = '';
+                    document.getElementById('pin-error').classList.add('d-none');
+                });
+
+                document.getElementById('export-data').addEventListener('click', exportData);
+                document.getElementById('import-data').addEventListener('click', function() {
+                    document.getElementById('import-file').click();
+                });
+                document.getElementById('import-file').addEventListener('change', importData);
+
+                document.getElementById('fullscreen-btn').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleFullScreen();
+                });
+
+                document.addEventListener('fullscreenchange', function() {
+                    const fullscreenBtn = document.getElementById('fullscreen-btn');
+                    const icon = fullscreenBtn.querySelector('i');
+                    if (document.fullscreenElement) {
+                        icon.className = 'fas fa-compress me-1';
+                        fullscreenBtn.querySelector('span').textContent = ' Обычный вид';
+                    } else {
+                        icon.className = 'fas fa-expand me-1';
+                        fullscreenBtn.querySelector('span').textContent = ' Полный экран';
+                    }
+                });
+
+                document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        document.querySelectorAll('.sidebar .nav-link').forEach(item => item.classList.remove('active'));
+                        this.classList.add('active');
+                        document.querySelectorAll('.main-content .page').forEach(page => page.classList.remove('active'));
+                        const pageId = this.getAttribute('data-page') + '-page';
+                        document.getElementById(pageId).classList.add('active');
+                        if (pageId === 'dashboard-page') loadDashboardData();
+                        else if (pageId === 'warehouse-page') loadWarehouseData();
+                        else if (pageId === 'nomenclature-page') loadNomenclatureData();
+                    });
+                });
+
+                document.getElementById('search-products').addEventListener('input', function() {
+                    searchQuery = this.value.trim().toLowerCase();
+                    currentPageWarehouse = 1;
+                    loadWarehouseData();
+                });
+
+                document.getElementById('save-quantity').addEventListener('click', saveQuantity);
+                document.getElementById('save-product').addEventListener('click', saveNewProduct);
+
+                document.getElementById('start-counting').addEventListener('click', function() {
+                    const modal = new bootstrap.Modal(document.getElementById('pinConfirmModal'));
+                    document.getElementById('pin-confirm-input').value = '';
+                    document.getElementById('pin-confirm-error').classList.add('d-none');
+                    modal.show();
+                });
+
+                document.getElementById('confirm-pin').addEventListener('click', function() {
+                    const pinInput = document.getElementById('pin-confirm-input');
+                    if (pinInput.value === CONFIG.counting_pin) {
+                        startCounting();
+                        bootstrap.Modal.getInstance(document.getElementById('pinConfirmModal')).hide();
+                    } else {
+                        document.getElementById('pin-confirm-error').classList.remove('d-none');
+                        pinInput.value = '';
+                    }
+                });
+
+                document.getElementById('save-counting').addEventListener('click', saveCounting);
+                setupCalculator();
+
+                document.getElementById('import-products').addEventListener('click', function() {
+                    document.getElementById('import-file').click();
+                });
+
+                document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('add-product-form').reset();
+                });
+                document.getElementById('changeQuantityModal').addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('change-quantity-form').reset();
+                });
+                document.getElementById('countFactModal').addEventListener('hidden.bs.modal', function() {
+                    document.getElementById('calculator-input').value = '0';
+                });
+            } catch (error) {
+                console.error('Ошибка настройки обработчиков событий:', error);
+                showNotification('Ошибка инициализации интерфейса', 'danger');
+            }
+        }
+
+        function setupCalculator() {
+            let calculatorHistory = [];
+            let calculatorTotal = 0;
+            let initialValue = 0;
+            const historyElement = document.getElementById('calculator-history');
+            const totalElement = document.getElementById('calculator-total');
+            const input = document.getElementById('calculator-input');
+
+            function updateCalculatorDisplay() {
+                if (calculatorHistory.length === 0) {
+                    historyElement.textContent = `${initialValue}`;
+                } else {
+                    historyElement.textContent = `${initialValue} + ${calculatorHistory.join(' + ')}`;
+                }
+                totalElement.textContent = calculatorTotal;
+            }
+
+            document.getElementById('calculator-add').addEventListener('click', function() {
+                const value = parseInt(input.value) || 0;
+                if (value > 0) {
+                    calculatorHistory.push(value);
+                    calculatorTotal += value;
+                    updateCalculatorDisplay();
+                    input.value = '0';
+                }
+            });
+
+            document.getElementById('calculator-undo').addEventListener('click', function() {
+                if (calculatorHistory.length > 0) {
+                    const lastValue = calculatorHistory.pop();
+                    calculatorTotal -= lastValue;
+                    updateCalculatorDisplay();
+                }
+            });
+
+            document.getElementById('calculator-reset').addEventListener('click', function() {
+                calculatorHistory = [];
+                calculatorTotal = initialValue;
+                updateCalculatorDisplay();
+            });
+
+            document.getElementById('countFactModal').addEventListener('show.bs.modal', function() {
+                const productId = parseInt(document.getElementById('count-product-id').value);
+                const product = appData.products.find(p => p.id === productId);
+                if (product) {
+                    initialValue = product.fact;
+                    calculatorHistory = [];
+                    calculatorTotal = initialValue;
+                    updateCalculatorDisplay();
+                }
+            });
+
+            document.getElementById('save-fact').addEventListener('click', function() {
+                const productId = parseInt(document.getElementById('count-product-id').value);
+                const factQuantity = calculatorTotal;
+                const productIndex = appData.products.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                    appData.products[productIndex].fact = factQuantity;
+                    saveDataToStorage();
+                    addOperation(productId, 'Подсчет', factQuantity);
+                    bootstrap.Modal.getInstance(document.getElementById('countFactModal')).hide();
+                    loadWarehouseData();
+                    showNotification('Данные по факту успешно сохранены', 'success');
+                }
+            });
+        }
+
+        function renderPaginatedTable(data, tableBodyId, page, onRenderRow) {
+            const tbody = document.getElementById(tableBodyId);
+            tbody.innerHTML = '';
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedItems = data.slice(start, end);
+            paginatedItems.forEach(onRenderRow);
+            renderPaginationControls(data.length, page, tableBodyId);
+        }
+
+        function renderPaginationControls(totalItems, currentPage, tableBodyId) {
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            const containerId = tableBodyId + '-pagination';
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Pagination container not found:', containerId);
+                return;
+            }
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+            const loadPage = (pageNumber) => {
+                if (tableBodyId === 'products-table-body') {
+                    currentPageWarehouse = pageNumber;
+                    loadWarehouseData();
+                } else {
+                    currentPageNomenclature = pageNumber;
+                    loadNomenclatureData();
+                }
+            };
+
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = '←';
+            prevBtn.className = 'btn btn-sm btn-outline-primary mx-1';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => loadPage(currentPage - 1));
+            container.appendChild(prevBtn);
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            if (currentPage <= 3) {
+                endPage = Math.min(5, totalPages);
+            }
+            if (currentPage > totalPages - 3) {
+                startPage = Math.max(1, totalPages - 4);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.className = 'btn btn-sm btn-outline-primary mx-1';
+                firstBtn.textContent = '1';
+                firstBtn.addEventListener('click', () => loadPage(1));
+                container.appendChild(firstBtn);
+                if (startPage > 2) container.appendChild(createElement('span', '...', 'align-self-center mx-1'));
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-sm ' + (i === currentPage ? 'btn-primary' : 'btn-outline-primary') + ' mx-1';
+                btn.textContent = i;
+                btn.addEventListener('click', () => loadPage(i));
+                container.appendChild(btn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) container.appendChild(createElement('span', '...', 'align-self-center mx-1'));
+                const lastBtn = document.createElement('button');
+                lastBtn.className = 'btn btn-sm btn-outline-primary mx-1';
+                lastBtn.textContent = totalPages;
+                lastBtn.addEventListener('click', () => loadPage(totalPages));
+                container.appendChild(lastBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = '→';
+            nextBtn.className = 'btn btn-sm btn-outline-primary mx-1';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => loadPage(currentPage + 1));
+            container.appendChild(nextBtn);
+        }
+
+        function loadDashboardData() {
+            try {
+                document.getElementById('total-products').textContent = appData.products.length;
+                document.getElementById('in-stock').textContent = appData.products.reduce((sum, product) => sum + product.quantity, 0);
+                document.getElementById('discrepancies').textContent = appData.products.filter(product => product.quantity !== product.fact).length;
+
+                const operationsTable = document.getElementById('recent-operations');
+                operationsTable.innerHTML = '';
+                appData.operations.slice(-5).reverse().forEach(op => {
+                    const product = appData.products.find(p => p.id === op.productId);
+                    const row = operationsTable.insertRow();
+                    row.appendChild(createElement('td', product ? product.name : 'Неизвестный товар'));
+                    row.appendChild(createElement('td', op.type));
+                    row.appendChild(createElement('td', op.quantity.toString()));
+                    row.appendChild(createElement('td', op.date));
+                });
+
+                const productsStats = document.getElementById('products-stats');
+                productsStats.innerHTML = '';
+                const topProducts = [...appData.products].sort((a, b) => b.quantity - a.quantity).slice(0, 5);
+                topProducts.forEach(product => {
+                    const statItem = document.createElement('div');
+                    statItem.className = 'd-flex justify-content-between align-items-center mb-2';
+                    statItem.appendChild(createElement('span', product.name));
+                    statItem.appendChild(createElement('span', `${product.quantity} шт.`, 'badge bg-primary rounded-pill'));
+                    productsStats.appendChild(statItem);
+                });
+            } catch (error) {
+                console.error('Ошибка загрузки данных мониторинга:', error);
+                showNotification('Ошибка загрузки данных мониторинга', 'danger');
+            }
+        }
+
+        function loadWarehouseData() {
+            try {
+                let filteredProducts = appData.products;
+                if (searchQuery.length >= 3) {
+                    filteredProducts = appData.products.filter(product => product.name.toLowerCase().includes(searchQuery));
+                }
+
+                const renderRow = (product) => {
+                    const difference = product.fact - product.quantity;
+                    let differenceText, colorClass;
+                    if (difference > 0) {
+                        differenceText = `+${difference}`;
+                        colorClass = 'text-success';
+                    } else if (difference < 0) {
+                        differenceText = difference.toString();
+                        colorClass = 'text-danger';
+                    } else {
+                        differenceText = '0';
+                        colorClass = 'text-primary';
+                    }
+
+                    const row = document.createElement('tr');
+                    row.appendChild(createElement('td', product.name));
+                    row.appendChild(createElement('td', product.quantity.toString()));
+                    row.appendChild(createElement('td', product.fact.toString()));
+                    
+                    const differenceCell = document.createElement('td');
+                    differenceCell.textContent = differenceText;
+                    differenceCell.className = colorClass + ' fw-bold';
+                    row.appendChild(differenceCell);
+
+                    const actionsCell = document.createElement('td');
+                    const changeButton = document.createElement('button');
+                    changeButton.className = 'btn btn-sm btn-outline-primary me-1 change-quantity';
+                    changeButton.innerHTML = '<i class="fas fa-edit"></i> Изменить';
+                    changeButton.addEventListener('click', () => openChangeQuantityModal(product.id));
+
+                    const countButton = document.createElement('button');
+                    countButton.className = 'btn btn-sm btn-outline-info count-fact';
+                    countButton.innerHTML = '<i class="fas fa-calculator"></i> Подсчет';
+                    countButton.addEventListener('click', () => openCountFactModal(product.id));
+
+                    actionsCell.appendChild(changeButton);
+                    actionsCell.appendChild(countButton);
+                    row.appendChild(actionsCell);
+
+                    document.getElementById('products-table-body').appendChild(row);
+                };
+
+                renderPaginatedTable(filteredProducts, 'products-table-body', currentPageWarehouse, renderRow);
+            } catch (error) {
+                console.error('Ошибка загрузки данных склада:', error);
+                showNotification('Ошибка загрузки данных склада', 'danger');
+            }
+        }
+
+        function loadNomenclatureData() {
+            try {
+                const renderRow = (product) => {
+                    const row = document.createElement('tr');
+                    row.appendChild(createElement('td', product.name));
+                    row.appendChild(createElement('td', product.quantity.toString()));
+
+                    const actionsCell = document.createElement('td');
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'btn btn-sm btn-outline-danger delete-product';
+                    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteButton.addEventListener('click', () => deleteProduct(product.id));
+
+                    actionsCell.appendChild(deleteButton);
+                    row.appendChild(actionsCell);
+
+                    document.getElementById('nomenclature-table-body').appendChild(row);
+                };
+
+                renderPaginatedTable(appData.products, 'nomenclature-table-body', currentPageNomenclature, renderRow);
+            } catch (error) {
+                console.error('Ошибка загрузки данных номенклатуры:', error);
+                showNotification('Ошибка загрузки данных номенклатуры', 'danger');
+            }
+        }
+
+        function openChangeQuantityModal(productId) {
+            try {
+                const product = appData.products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('product-id').value = product.id;
+                    document.getElementById('product-name').value = product.name;
+                    document.getElementById('current-quantity').value = product.quantity;
+                    document.getElementById('new-quantity').value = product.quantity;
+                    new bootstrap.Modal(document.getElementById('changeQuantityModal')).show();
+                }
+            } catch (error) {
+                console.error('Ошибка открытия модального окна изменения количества:', error);
+            }
+        }
+
+        function openCountFactModal(productId) {
+            try {
+                const product = appData.products.find(p => p.id === productId);
+                if (product) {
+                    document.getElementById('count-product-id').value = product.id;
+                    document.getElementById('count-product-name').value = product.name;
+                    document.getElementById('count-current-quantity').value = product.quantity;
+                    new bootstrap.Modal(document.getElementById('countFactModal')).show();
+                }
+            } catch (error) {
+                console.error('Ошибка открытия модального окна подсчета:', error);
+            }
+        }
+
+        function saveQuantity() {
+            try {
+                const productId = parseInt(document.getElementById('product-id').value);
+                const newQuantity = parseInt(document.getElementById('new-quantity').value);
+                if (isNaN(newQuantity) || newQuantity < 0) {
+                    showNotification('Некорректное количество', 'danger');
+                    return;
+                }
+                const productIndex = appData.products.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                    appData.products[productIndex].quantity = newQuantity;
+                    saveDataToStorage();
+                    addOperation(productId, 'Изменение', newQuantity);
+                    bootstrap.Modal.getInstance(document.getElementById('changeQuantityModal')).hide();
+                    loadWarehouseData();
+                    loadDashboardData();
+                    showNotification('Количество товара успешно изменено', 'success');
+                }
+            } catch (error) {
+                console.error('Ошибка сохранения количества:', error);
+            }
+        }
+
+        function saveNewProduct() {
+            try {
+                const nameInput = document.getElementById('new-product-name');
+                const quantityInput = document.getElementById('new-product-quantity');
+                const name = nameInput.value.trim();
+                const quantity = parseInt(quantityInput.value);
+                if (!name) {
+                    showNotification('Введите наименование товара', 'danger');
+                    nameInput.focus();
+                    return;
+                }
+                if (isNaN(quantity) || quantity < 0) {
+                    showNotification('Некорректное количество', 'danger');
+                    quantityInput.focus();
+                    return;
+                }
+                let productIdForOperation;
+                const nameLower = name.toLowerCase();
+                const existingProductIndex = appData.products.findIndex(p => p.name.toLowerCase() === nameLower);
+                if (existingProductIndex !== -1) {
+                    const existingProduct = appData.products[existingProductIndex];
+                    existingProduct.quantity += quantity;
+                    existingProduct.fact += quantity;
+                    productIdForOperation = existingProduct.id;
+                    showNotification('Количество существующего товара обновлено', 'info');
+                } else {
+                    const newId = generateProductId();
+                    const newProduct = { id: newId, name: name, quantity: quantity, fact: quantity };
+                    appData.products.push(newProduct);
+                    productIdForOperation = newId;
+                    showNotification('Новый товар успешно добавлен', 'success');
+                }
+                saveDataToStorage();
+                addOperation(productIdForOperation, 'Добавление', quantity);
+                bootstrap.Modal.getInstance(document.getElementById('addProductModal')).hide();
+                loadNomenclatureData();
+                loadDashboardData();
+                loadWarehouseData();
+            } catch (error) {
+                console.error('Ошибка сохранения товара:', error);
+            }
+        }
+
+        function startCounting() {
+            try {
+                appData.products.forEach(product => { product.fact = 0; });
+                saveDataToStorage();
+                loadWarehouseData();
+                showNotification('Начат новый подсчет. Все значения "По факту" обнулены.', 'info');
+            } catch (error) {
+                console.error('Ошибка начала подсчета:', error);
+            }
+        }
+
+        function saveCounting() {
+            try {
+                let changesMade = false;
+                appData.products.forEach(product => {
+                    if (product.quantity !== product.fact) {
+                        product.quantity = product.fact;
+                        addOperation(product.id, 'Корректировка', product.fact);
+                        changesMade = true;
+                    }
+                });
+                if (changesMade) {
+                    saveDataToStorage();
+                    loadWarehouseData();
+                    loadDashboardData();
+                    showNotification('Результаты подсчета сохранены', 'success');
+                } else {
+                    showNotification('Нет расхождений для сохранения', 'info');
+                }
+            } catch (error) {
+                console.error('Ошибка сохранения подсчета:', error);
+            }
+        }
+
+        function addOperation(productId, type, quantity) {
+            try {
+                const newId = generateOperationId();
+                const newOperation = {
+                    id: newId,
+                    productId: productId,
+                    type: type,
+                    quantity: quantity,
+                    date: new Date().toLocaleString('ru-RU')
+                };
+                appData.operations.push(newOperation);
+                saveDataToStorage();
+            } catch (error) {
+                console.error('Ошибка добавления операции:', error);
+            }
+        }
+
+        function showNotification(message, type) {
+            try {
+                const notificationArea = document.getElementById('notification-area');
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type} alert-dismissible notification`;
+                notification.role = 'alert';
+                notification.appendChild(createElement('span', message));
+                const closeButton = document.createElement('button');
+                closeButton.type = 'button';
+                closeButton.className = 'btn-close';
+                closeButton.setAttribute('data-bs-dismiss', 'alert');
+                notification.appendChild(closeButton);
+                notificationArea.appendChild(notification);
+                setTimeout(() => {
+                    const alertInstance = bootstrap.Alert.getOrCreateInstance(notification);
+                    if (alertInstance) alertInstance.close();
+                }, 5000);
+            } catch (error) {
+                console.error('Ошибка показа уведомления:', error);
+            }
+        }
+
+        function deleteProduct(productId) {
+            try {
+                const product = appData.products.find(p => p.id === productId);
+                if (!product) return;
+                if (confirm(`Вы уверены, что хотите удалить товар "${product.name}"?`)) {
+                    appData.products = appData.products.filter(p => p.id !== productId);
+                    saveDataToStorage();
+                    loadNomenclatureData();
+                    loadDashboardData();
+                    loadWarehouseData();
+                    showNotification('Товар успешно удален', 'success');
+                }
+            } catch (error) {
+                console.error('Ошибка удаления товара:', error);
+            }
+        }
+    </script>
+</body>
+</html>
